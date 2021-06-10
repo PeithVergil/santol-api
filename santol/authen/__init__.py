@@ -1,8 +1,14 @@
 from .app import app
 from .chems import User, Token
-from .views import authenticate
 from .models import UserInfo, UserToken, UserCredentials
-from .functions import create_user, delete_user, create_token, delete_token
+from .functions import (
+    authen_user,
+    create_user,
+    delete_user,
+    create_token,
+    delete_token,
+)
+from .views import *
 
 
 __all__ = [
@@ -12,6 +18,7 @@ __all__ = [
     'UserInfo',
     'UserToken',
     'UserCredentials',
+    'authen_user',
     'create_user',
     'delete_user',
     'create_token',

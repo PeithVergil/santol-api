@@ -14,6 +14,8 @@ class Profile(BaseModel, DatesMixin):
     __tablename__ = 'user_profile'
 
     # The user that was granted the token.
+    # NOTE: A user should only have one profile.
+    # user_id = Column(Integer, ForeignKey('user.id'), unique=True)
     user_id = Column(Integer, ForeignKey('user.id'))
 
     # Create one-to-many relationship with the User model.

@@ -15,3 +15,18 @@ USERS = [
         'password_hashed': 'a3fe52f8a6aeece3$3B13B38AA45300EE171F9D811CA9A45536C18D442DA63B14D94AAC65F5905E11',
     },
 ]
+
+PROFILES = [
+    {
+        'fname': 'Jane',
+        'lname': 'Doe',
+    },
+    {
+        'fname': 'Jean',
+        'lname': 'Doe',
+    },
+    {
+        'fname': 'Jena',
+        'lname': 'Doe',
+    },
+]
