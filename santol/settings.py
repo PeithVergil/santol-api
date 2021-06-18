@@ -10,7 +10,7 @@ DEBUG = True
 # DATABASE CONFIGURATIONS
 # --------------------------------------------------------------
 # See: http://docs.sqlalchemy.org/en/latest/core/engines.html#mysql
-DATABASE_HOST = os.getenv('SANTOL_DATABASE_HOST', '127.0.0.1')
+DATABASE_HOST = os.getenv('SANTOL_DATABASE_HOST', 'dagnet_db')
 DATABASE_NAME = os.getenv('SANTOL_DATABASE_NAME', 'santol')
 DATABASE_PORT = os.getenv('SANTOL_DATABASE_PORT', '3306')
 
