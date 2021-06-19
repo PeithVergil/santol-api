@@ -2,6 +2,7 @@ import pytest
 
 from .client import client
 from .fixtures import *
+from .settings import PROFILES
 
 from santol.profile import delete_profile
 
@@ -9,11 +10,12 @@ from santol.profile import delete_profile
 @pytest.fixture
 def create_profile_response(tokens):
     token = tokens[0]
+    profile = PROFILES[0]
 
     response = client.post('/profiles/',
         json={
-            'fname': 'Jane',
-            'lname': 'Doe',
+            'fname': profile['fname'],
+            'lname': profile['lname'],
         },
         headers={
             'Authorization': f'Bearer {token.value}',
