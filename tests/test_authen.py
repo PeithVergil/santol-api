@@ -1,6 +1,5 @@
 from .client import client
 from .settings import USERS
-from .fixtures import *
 
 from santol.authen import delete_user, delete_token
 

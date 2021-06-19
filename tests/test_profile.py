@@ -1,7 +1,6 @@
 import pytest
 
 from .client import client
-from .fixtures import *
 from .settings import PROFILES
 
 from santol.profile import delete_profile
