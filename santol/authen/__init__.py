@@ -1,4 +1,4 @@
-from .app import app
+from .app import router
 from .chems import User, Token
 from .models import UserInfo, UserToken, UserCredentials
 from .functions import (
@@ -12,9 +12,9 @@ from .views import *
 
 
 __all__ = [
-    'app',
     'User',
     'Token',
+    'router',
     'UserInfo',
     'UserToken',
     'UserCredentials',

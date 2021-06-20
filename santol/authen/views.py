@@ -1,12 +1,12 @@
 from fastapi import HTTPException, security, status
 
-from .app import app
+from .app import router
 from .models import UserInfo, UserToken, UserCredentials
 from .functions import authenticate_credentials, create_token, create_user
 from ..errors import DatabaseError
 
 
-@app.post('/users')
+@router.post('/auth/users')
 def users_create(credentials: UserCredentials) -> UserInfo:
     try:
         user = create_user(credentials.username, credentials.password)
@@ -15,7 +15,7 @@ def users_create(credentials: UserCredentials) -> UserInfo:
     return user
 
 
-@app.post('/authenticate')
+@router.post('/auth/authenticate')
 def users_authenticate(credentials: UserCredentials) -> UserToken:
     user = authenticate_credentials(credentials)
     if user is None:

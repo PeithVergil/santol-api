@@ -1,4 +1,4 @@
-from .app import app
+from .app import router
 from .chems import Profile
 from .functions import (
     create_profile,
@@ -8,7 +8,7 @@ from .views import *
 
 
 __all__ = [
-    'app',
+    'router',
     'Profile',
     'create_profile',
     'delete_profile',

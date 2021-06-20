@@ -20,7 +20,7 @@ http -v http://127.0.0.1:8000/auth/users "username=jane.doe@example.com" "passwo
 Fetch profile detail.
 
 ```bash
-export AUTH_TOKEN=4953e0d18bc45d8cbf087b06aed5bd22412749fc002ba621a2db5949f6ef937c
+export AUTH_TOKEN=6040de24724c005e72b397fef29031990f4271c9b6b5a7120e06378457ed5818
 
 http -v http://127.0.0.1:8000/profiles/me "Authorization: Bearer $AUTH_TOKEN"
 ```
