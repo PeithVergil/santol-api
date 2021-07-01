@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from .models import BaseModel, DatesMixin
 from ..settings import DATABASE
@@ -21,9 +21,19 @@ def AlchemySession(commit=True):
         session.close()
 
 
+def alchemy_session():
+    session = SessionMaker()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
 __all__ = [
     'Session',
     'BaseModel',
     'DatesMixin',
+    'SessionMaker',
     'AlchemySession',
+    'alchemy_session',
 ]

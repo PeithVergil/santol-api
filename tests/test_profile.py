@@ -7,7 +7,7 @@ from santol.profile import delete_profile
 
 
 @pytest.fixture
-def create_profile_response(tokens):
+def create_profile_response(tokens, db):
     token = tokens[0]
     profile = PROFILES[0]
 
@@ -25,7 +25,7 @@ def create_profile_response(tokens):
 
     data = response.json()
 
-    assert delete_profile(data['id']) is True
+    assert delete_profile(data['id'], db) is True
 
 
 def test_profiles_create(create_profile_response):

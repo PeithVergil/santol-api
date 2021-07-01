@@ -7,7 +7,7 @@ from sqlalchemy import exc
 from .chems import Profile
 from .models import ProfileInfo
 from ..errors import DatabaseError
-from ..alchemy import AlchemySession
+from ..alchemy import Session, AlchemySession
 
 
 logger = logging.getLogger(__name__)
@@ -16,17 +16,9 @@ logger = logging.getLogger(__name__)
 bearer = security.HTTPBearer()
 
 
-def select_profile(user_id: int, session=None) -> ProfileInfo:
-    if session is not None:
-        return ackchyually_select_profile(user_id, session)
-    
-    with AlchemySession(False) as session:
-        return ackchyually_select_profile(user_id, session)
-
-
-def ackchyually_select_profile(user_id: int, session: AlchemySession) -> ProfileInfo:
+def select_profile(user_id: int, db: Session) -> ProfileInfo:
     query = (
-        session
+        db
         .query(Profile)
         .filter(Profile.user_id == user_id)
     )
@@ -39,15 +31,7 @@ def ackchyually_select_profile(user_id: int, session: AlchemySession) -> Profile
     return ProfileInfo.from_orm(profile)
 
 
-def create_profile(user_id: int, fname: str, lname: str, session=None) -> ProfileInfo:
-    if session is not None:
-        return ackchyually_create_profile(user_id, fname, lname, session)
-    
-    with AlchemySession(False) as session:
-        return ackchyually_create_profile(user_id, fname, lname, session)
-    
-
-def ackchyually_create_profile(user_id: int, fname: str, lname: str, session: AlchemySession) -> ProfileInfo:
+def create_profile(user_id: int, fname: str, lname: str, db: Session) -> ProfileInfo:
     created_at = datetime.utcnow()
 
     profile = Profile(
@@ -57,12 +41,12 @@ def ackchyually_create_profile(user_id: int, fname: str, lname: str, session: Al
         created_at=created_at,
     )
 
-    session.add(profile)
+    db.add(profile)
 
     try:
-        session.commit()
+        db.commit()
     except exc.IntegrityError as error:
-        session.rollback()
+        db.rollback()
 
         logger.exception('Failed to create a new profile.')
 
@@ -77,17 +61,9 @@ def ackchyually_create_profile(user_id: int, fname: str, lname: str, session: Al
     return ProfileInfo.from_orm(profile)
 
 
-def delete_profile(profile_id: int, session=None) -> bool:
-    if session is not None:
-        return ackchyually_delete_profile(profile_id, session)
-    
-    with AlchemySession(False) as session:
-        return ackchyually_delete_profile(profile_id, session)
-
-
-def ackchyually_delete_profile(profile_id: str, session: AlchemySession) -> bool:
+def delete_profile(profile_id: int, db: Session) -> bool:
     query = (
-        session
+        db
         .query(Profile)
         .filter(Profile.id == profile_id)
     )
@@ -95,9 +71,9 @@ def ackchyually_delete_profile(profile_id: str, session: AlchemySession) -> bool
     query.delete()
     
     try:
-        session.commit()
+        db.commit()
     except exc.IntegrityError as error:
-        session.rollback()
+        db.rollback()
 
         logger.exception('Failed to delete the profile.')
 

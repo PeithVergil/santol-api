@@ -4,6 +4,7 @@ import logging
 import secrets
 
 from typing import Optional
+
 from fastapi import HTTPException, Depends, security, status
 from datetime import datetime, timedelta
 from sqlalchemy import desc, exc
@@ -11,7 +12,7 @@ from sqlalchemy import desc, exc
 from .chems import User, Token
 from .models import UserCredentials, UserInfo, UserToken
 from ..errors import DatabaseError
-from ..alchemy import AlchemySession
+from ..alchemy import AlchemySession, Session
 from ..settings import HASH_FUNC, HASH_ITER
 
 
@@ -40,19 +41,18 @@ def password_check(password, hashed_password):
     return pass_b16 == hash
 
 
-def authenticate_credentials(credentials: UserCredentials) -> Optional[UserInfo]:
-    with AlchemySession() as session:
-        query = (
-            session
-            .query(User)
-            .filter(User.username == credentials.username)
-        )
-        user = query.first()
-        if user is not None:
-            is_valid = password_check(credentials.password, user.password)
-            if is_valid:
-                return UserInfo.from_orm(user)
-        return None
+def authenticate_credentials(credentials: UserCredentials, db: Session) -> Optional[UserInfo]:
+    query = (
+        db
+        .query(User)
+        .filter(User.username == credentials.username)
+    )
+    user = query.first()
+    if user is not None:
+        is_valid = password_check(credentials.password, user.password)
+        if is_valid:
+            return UserInfo.from_orm(user)
+    return None
 
 
 def create_user(username: str, password: str, session=None) -> UserInfo:
