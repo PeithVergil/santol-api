@@ -12,7 +12,7 @@ from sqlalchemy import desc, exc
 from .chems import User, Token
 from .models import UserCredentials, UserInfo, UserToken
 from ..errors import DatabaseError
-from ..alchemy import AlchemySession, Session
+from ..alchemy import Session, alchemy_session
 from ..settings import HASH_FUNC, HASH_ITER
 
 
@@ -55,29 +55,21 @@ def authenticate_credentials(credentials: UserCredentials, db: Session) -> Optio
     return None
 
 
-def create_user(username: str, password: str, session=None) -> UserInfo:
+def create_user(username: str, password: str, db: Session) -> UserInfo:
     password = password_hash(password)
     
-    if session is not None:
-        return ackchyually_create_user(username, password, session)
-    
-    with AlchemySession(False) as session:
-        return ackchyually_create_user(username, password, session)
-
-
-def ackchyually_create_user(username: str, password: str, session: AlchemySession) -> UserInfo:
     user = User(
         username=username,
         password=password,
         created_at=datetime.utcnow()
     )
 
-    session.add(user)
+    db.add(user)
 
     try:
-        session.commit()
+        db.commit()
     except exc.IntegrityError as error:
-        session.rollback()
+        db.rollback()
 
         logger.exception('Failed to create a new user.')
         
@@ -92,17 +84,9 @@ def ackchyually_create_user(username: str, password: str, session: AlchemySessio
     return UserInfo.from_orm(user)
 
 
-def delete_user(user_id: int, session=None) -> bool:
-    if session is not None:
-        return ackchyually_delete_user(user_id, session)
-    
-    with AlchemySession(False) as session:
-        return ackchyually_delete_user(user_id, session)
-
-
-def ackchyually_delete_user(user_id: int, session: AlchemySession) -> bool:
+def delete_user(user_id: int, db: Session) -> bool:
     query = (
-        session
+        db
         .query(User)
         .filter(User.id == user_id)
     )
@@ -110,9 +94,9 @@ def ackchyually_delete_user(user_id: int, session: AlchemySession) -> bool:
     query.delete()
 
     try:
-        session.commit()
+        db.commit()
     except exc.IntegrityError as error:
-        session.rollback()
+        db.rollback()
 
         logger.exception('Failed to delete the user.')
 
@@ -136,15 +120,7 @@ def random_token(user: UserInfo) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
 
 
-def create_token(user: UserInfo, session=None) -> UserToken:
-    if session is not None:
-        return ackchyually_create_token(user, session)
-    
-    with AlchemySession(False) as session:
-        return ackchyually_create_token(user, session)
-
-
-def ackchyually_create_token(user: UserInfo, session: AlchemySession) -> UserToken:
+def create_token(user: UserInfo, db: Session) -> UserToken:
     created_at = datetime.utcnow()
     expired_at = datetime.utcnow() + timedelta(hours=1)
 
@@ -155,12 +131,12 @@ def ackchyually_create_token(user: UserInfo, session: AlchemySession) -> UserTok
         expired_at=expired_at,
     )
 
-    session.add(token)
+    db.add(token)
 
     try:
-        session.commit()
+        db.commit()
     except exc.IntegrityError as error:
-        session.rollback()
+        db.rollback()
 
         logger.exception('Failed to create a user token.')
 
@@ -175,17 +151,9 @@ def ackchyually_create_token(user: UserInfo, session: AlchemySession) -> UserTok
     return UserToken.from_orm(token)
 
 
-def delete_token(token: str, session=None) -> bool:
-    if session is not None:
-        return ackchyually_delete_token(token, session)
-    
-    with AlchemySession(False) as session:
-        return ackchyually_delete_token(token, session)
-
-
-def ackchyually_delete_token(token: str, session: AlchemySession) -> bool:
+def delete_token(token: str, db: Session) -> bool:
     query = (
-        session
+        db
         .query(Token)
         .filter(Token.value == token)
     )
@@ -193,9 +161,9 @@ def ackchyually_delete_token(token: str, session: AlchemySession) -> bool:
     query.delete()
     
     try:
-        session.commit()
+        db.commit()
     except exc.IntegrityError as error:
-        session.rollback()
+        db.rollback()
 
         logger.exception('Failed to delete the user token.')
 
@@ -204,20 +172,19 @@ def ackchyually_delete_token(token: str, session: AlchemySession) -> bool:
     return True
 
 
-def authen_user(authorization: security.HTTPAuthorizationCredentials = Depends(bearer)) -> UserInfo:
-    with AlchemySession(False) as session:
-        query = (
-            session
-            .query(Token)
-            .join(Token.user)
-            .filter(Token.value == authorization.credentials)
-            .order_by(desc(Token.created_at))
-            .limit(1)
-        )
-        token = query.first()
+def authen_user(authorization: security.HTTPAuthorizationCredentials = Depends(bearer), db: Session = Depends(alchemy_session)) -> UserInfo:
+    query = (
+        db
+        .query(Token)
+        .join(Token.user)
+        .filter(Token.value == authorization.credentials)
+        .order_by(desc(Token.created_at))
+        .limit(1)
+    )
+    token = query.first()
 
-        if token is None:
-            logger.info('Token not found.')
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Token does not exist')
-        
-        return UserInfo.from_orm(token.user)
+    if token is None:
+        logger.info('Token not found.')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Token does not exist')
+    
+    return UserInfo.from_orm(token.user)

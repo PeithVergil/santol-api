@@ -21,7 +21,7 @@ def users_authenticate(credentials: UserCredentials, db: Session = Depends(alche
     user = authenticate_credentials(credentials, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Incorrect username or password')
-    return create_token(user)
+    return create_token(user, db)
 
 
 __all__ = [

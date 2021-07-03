@@ -7,7 +7,7 @@ from santol.authen import delete_user, delete_token
 
 
 @pytest.fixture
-def create_user_response():
+def create_user_response(db):
     user = USERS[0]
 
     response = client.post('/auth/users', json={
@@ -19,7 +19,7 @@ def create_user_response():
 
     data = response.json()
 
-    assert delete_user(data['id']) is True
+    assert delete_user(data['id'], db) is True
 
 
 def test_users_create(create_user_response):
@@ -57,7 +57,7 @@ def test_users_create_duplicate(users):
 
 
 @pytest.fixture
-def authenticate_user(users):
+def authenticate_user(users, db):
     user = USERS[0]
 
     response = client.post('/auth/authenticate', json={
@@ -69,7 +69,7 @@ def authenticate_user(users):
 
     data = response.json()
 
-    assert delete_token(data['value']) is True
+    assert delete_token(data['value'], db) is True
 
 
 def test_users_authenticate(authenticate_user):

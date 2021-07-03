@@ -1,13 +1,13 @@
 import logging
 
-from fastapi import HTTPException, Depends, security, status
+from fastapi import HTTPException, security, status
 from datetime import datetime
 from sqlalchemy import exc
 
 from .chems import Profile
 from .models import ProfileInfo
 from ..errors import DatabaseError
-from ..alchemy import Session, AlchemySession
+from ..alchemy import Session
 
 
 logger = logging.getLogger(__name__)

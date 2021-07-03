@@ -1,5 +1,3 @@
-from contextlib import contextmanager
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -8,17 +6,6 @@ from ..settings import DATABASE
 
 
 SessionMaker = sessionmaker(bind=create_engine(DATABASE))
-
-
-@contextmanager
-def AlchemySession(commit=True):
-    session = SessionMaker()
-    try:
-        yield session
-        if commit:
-            session.commit()
-    finally:
-        session.close()
 
 
 def alchemy_session():
@@ -34,6 +21,5 @@ __all__ = [
     'BaseModel',
     'DatesMixin',
     'SessionMaker',
-    'AlchemySession',
     'alchemy_session',
 ]
