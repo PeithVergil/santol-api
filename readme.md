@@ -30,14 +30,14 @@ export SANTOL_API_ROOT=~/dev/santol-api
 export SANTOL_API_VENV=~/venv/santol-api
 
 # Install Python packages.
-docker run -it --rm --name santol_api --workdir /app -v $SANTOL_API_ROOT:/app -v $SANTOL_API_VENV:/venv python:3.9-buster python -m venv /venv
-docker run -it --rm --name santol_api --workdir /app -v $SANTOL_API_ROOT:/app -v $SANTOL_API_VENV:/venv python:3.9-buster /venv/bin/pip install -r requirements-dev.txt
+docker run -it --rm --name santol_api --workdir /app -v $SANTOL_API_ROOT:/app -v $SANTOL_API_VENV:/venv python:3.9-slim-buster python -m venv /venv
+docker run -it --rm --name santol_api --workdir /app -v $SANTOL_API_ROOT:/app -v $SANTOL_API_VENV:/venv python:3.9-slim-buster /venv/bin/pip install -r requirements-dev.txt
 
 # Start the dev server.
-docker run --rm --detach --name santol_api --workdir /app -v $SANTOL_API_ROOT:/app -v $SANTOL_API_VENV:/venv --network dagnet --publish 8000:8000 python:3.9-buster /venv/bin/uvicorn santol:app --host 0.0.0.0 --reload
+docker run -d --rm --name santol_api --workdir /app -v $SANTOL_API_ROOT:/app -v $SANTOL_API_VENV:/venv --network dagnet --publish 8000:8000 python:3.9-slim-buster /venv/bin/uvicorn santol:app --host 0.0.0.0 --reload
 
 # Running the tests.
-docker run -it --rm --name santol_test --workdir /app -v $SANTOL_API_ROOT:/app -v $SANTOL_API_VENV:/venv -e "SANTOL_DATABASE=testing" --network dagnet python:3.9-buster /venv/bin/pytest
+docker run -it --rm --name santol_test --workdir /app -v $SANTOL_API_ROOT:/app -v $SANTOL_API_VENV:/venv -e "SANTOL_DATABASE=testing" --network dagnet python:3.9-slim-buster /venv/bin/pytest
 ```
 
 ## Deployment
